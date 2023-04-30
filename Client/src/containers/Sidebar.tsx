@@ -13,13 +13,9 @@ const Sidebar = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number | null>(0);
-  const [tpm, SetTpm] = useState<number>(0);
+  const [wpm, setWpm] = useState<number>(0);
   const [efficiency, setEfficiency] = useState<number>(0);
   const [isHidden, setIsHidden] = useState("");
-
-  interface ResultsModalProps {
-    elapsedTime: number | null;
-  }
 
   useEffect(() => {
     if (startTime && endTime) {
@@ -33,7 +29,7 @@ const Sidebar = () => {
       event.preventDefault();
     }
     if (event.key === "Backspace") {
-      setBckSpace((prev) => prev + 1);
+      setBckSpace((prev: number | null) => prev + 1);
     }
   }
   console.log(value);
@@ -49,9 +45,7 @@ const Sidebar = () => {
     setStartTime(Date.now());
   };
 
-  const handleEvaluate = (e: { preventDefault: () => void }): void => {
-    e.preventDefault();
-
+  const handleEvaluate = () => {
     if (startTime) {
       setEndTime(Date.now());
     }
@@ -63,22 +57,35 @@ const Sidebar = () => {
     setIsHidden("hidden");
 
     if (elapsedTime) {
-      SetTpm(value.length / (elapsedTime / 60000));
+      const timeInMinutes = elapsedTime / 60000;
+
+      const wordCount = value.trim().split(/\s+/).length;
+
+      setWpm(Math.abs(Math.round(wordCount / timeInMinutes)));
     }
   };
 
   const handleReset = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    setWpm(0);
+    setValue("");
+    setBckSpace(0);
+    setElapsedTime(0);
+    setEfficiency(0);
   };
 
   console.log(defaultVal.length, value.length);
+  console.log(wpm);
+  console.log(value.trim().split(/\s+/).length);
   return (
     <div className=" max-w-[800px] lg:max-w-[1350px] flex w-full h-full relative">
       {showResults ? (
         <ResultsModal
           elapsedTime={elapsedTime}
-          tpm={tpm}
+          wpm={wpm}
           efficiency={efficiency}
+          setShowResults={setShowResults}
+          setIsHidden={setIsHidden}
         />
       ) : null}
       <div className="w-[150px] p-4 border-r border-[#9c1d3476] flex flex-col gap-10">

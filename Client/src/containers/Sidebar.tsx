@@ -15,6 +15,7 @@ const Sidebar = () => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(0);
   const [tpm, SetTpm] = useState<number>(0);
   const [efficiency, setEfficiency] = useState<number>(0);
+  const [isHidden, setIsHidden] = useState("");
 
   interface ResultsModalProps {
     elapsedTime: number | null;
@@ -59,6 +60,8 @@ const Sidebar = () => {
 
     setValue("");
 
+    setIsHidden("hidden");
+
     if (elapsedTime) {
       SetTpm(value.length / (elapsedTime / 60000));
     }
@@ -70,15 +73,14 @@ const Sidebar = () => {
 
   console.log(defaultVal.length, value.length);
   return (
-    
     <div className=" max-w-[800px] lg:max-w-[1350px] flex w-full h-full relative">
       {showResults ? (
-          <ResultsModal
-            elapsedTime={elapsedTime}
-            tpm={tpm}
-            efficiency={efficiency}
-          />
-        ) : null}
+        <ResultsModal
+          elapsedTime={elapsedTime}
+          tpm={tpm}
+          efficiency={efficiency}
+        />
+      ) : null}
       <div className="w-[150px] p-4 border-r border-[#9c1d3476] flex flex-col gap-10">
         <Button name={"Javascript"} />
         <Button name={"Typescript"} />
@@ -110,10 +112,9 @@ const Sidebar = () => {
         >
           Reset
         </button>
-        
       </div>
 
-      <div className="min-w-[70%] min-h-full relative">
+      <div className={`min-w-[80%] min-h-full relative ${isHidden}`}>
         <Editor
           className=""
           height="100%"

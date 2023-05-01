@@ -33,13 +33,17 @@ const options = {
 
 const labels = ["Current", "Personal Average", "Overall Users Average"];
 
-const EfficiencyGraph = () => {
+interface efficiencyGraphProps {
+  efficiency: number | null;
+}
+
+const EfficiencyGraph = ({ efficiency }: efficiencyGraphProps) => {
   const data = {
     labels,
     datasets: [
       {
         label: "Percentage",
-        data: [20, 60, 90, 100],
+        data: [efficiency, 60, 90, 100],
         backgroundColor: "#923423",
       },
     ],

@@ -67,7 +67,6 @@ const Sidebar = () => {
       setWpm(Math.floor(Math.abs(wordCount / timeInMinutes)));
     }
 
-    console.log(timeInMinutes);
     const typedValue = value.trim();
     const typedWords = typedValue.split(/\s+/);
     const sampleWords = defaultVal.split(/\s+/);

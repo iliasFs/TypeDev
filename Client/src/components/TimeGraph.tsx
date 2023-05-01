@@ -33,19 +33,22 @@ export const options = {
 
 const labels = ["Current", "Personal Average", "Overall Users Average"];
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Minutes",
-      data: [4, 5, 7, 10],
-      backgroundColor: "blue",
-      color: "white",
-    },
-  ],
-};
-
-const TimeGraph = () => {
+interface TimeGraphProps {
+  elapsedTime: number | null;
+}
+const TimeGraph = ({ elapsedTime }: TimeGraphProps) => {
+  const timeInMinutes = elapsedTime === 0 ? 1 : elapsedTime / 60000;
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Minutes",
+        data: [timeInMinutes, 5, 7, 10],
+        backgroundColor: "blue",
+        color: "white",
+      },
+    ],
+  };
   return (
     <div className="w-[40%] z-999">
       <Bar

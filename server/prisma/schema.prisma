@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  firstName String
+  lastName  String
+  password  String
+  Snippets  Snippet[]
+}
+
+
+
+model Snippet {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  body       String
+  category   String
+  difficulty String
+  // onDelete cascade is when we delete a user all snippets that are created by the user are deleted also
+  User       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int?
+}

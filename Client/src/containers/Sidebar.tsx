@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import Button from "../components/button";
+import Button from "../components/Button";
 import { Editor } from "@monaco-editor/react";
 import defaultVal from "../lib/constants";
 import ResultsModal from "../components/ResultsModal";
@@ -15,7 +15,10 @@ const Sidebar = () => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(0);
   const [wpm, setWpm] = useState<number>(0);
   const [efficiency, setEfficiency] = useState<number>(0);
-  const [isHidden, setIsHidden] = useState("");
+  const [isHidden, setIsHidden] = useState<string>("");
+  const [errorCount, setErrorCount] = useState<number>(0);
+  const [typedText, setTypedText] = useState("");
+  const [wordCount, setWordCount] = useState(0);
 
   useEffect(() => {
     if (startTime && endTime) {
@@ -32,8 +35,6 @@ const Sidebar = () => {
       setBckSpace((prev: number | null) => prev + 1);
     }
   }
-  console.log(value);
-  console.log(bckSpace);
 
   const handleStart = (e: { preventDefault: () => void }): void => {
     e.preventDefault();
@@ -56,17 +57,33 @@ const Sidebar = () => {
 
     setIsHidden("hidden");
 
-    if (elapsedTime) {
-      const timeInMinutes = elapsedTime / 60000;
+    const timeInMinutes = elapsedTime / 60000;
 
-      const wordCount = value.trim().split(/\s+/).length;
+    const wordCount = value.trim().split(/\s+/).length;
 
-      setWpm(Math.abs(Math.round(wordCount / timeInMinutes)));
+    if (timeInMinutes === 0) {
+      setWpm(wordCount);
+    } else {
+      setWpm(Math.floor(Math.abs(wordCount / timeInMinutes)));
     }
+
+    console.log(timeInMinutes);
+    const typedValue = value.trim();
+    const typedWords = typedValue.split(/\s+/);
+    const sampleWords = defaultVal.split(/\s+/);
+    let errors = 0;
+
+    for (let i = 0; i < typedWords.length; i++) {
+      if (typedWords[i] !== sampleWords[i]) {
+        errors++;
+      }
+    }
+    setTypedText(typedValue);
+    setErrorCount(errors + bckSpace);
+    setWordCount(typedWords.length);
   };
 
-  const handleReset = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
+  const handleReset = () => {
     setWpm(0);
     setValue("");
     setBckSpace(0);
@@ -74,9 +91,6 @@ const Sidebar = () => {
     setEfficiency(0);
   };
 
-  console.log(defaultVal.length, value.length);
-  console.log(wpm);
-  console.log(value.trim().split(/\s+/).length);
   return (
     <div className=" max-w-[800px] lg:max-w-[1350px] flex w-full h-full relative">
       {showResults ? (
@@ -86,6 +100,9 @@ const Sidebar = () => {
           efficiency={efficiency}
           setShowResults={setShowResults}
           setIsHidden={setIsHidden}
+          handleReset={handleReset}
+          errorCount={errorCount}
+          wordCount={wordCount}
         />
       ) : null}
       <div className="w-[150px] p-4 border-r border-[#9c1d3476] flex flex-col gap-10">

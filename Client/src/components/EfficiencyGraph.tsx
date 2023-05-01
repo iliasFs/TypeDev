@@ -18,7 +18,7 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
+const options = {
   responsive: true,
   plugins: {
     legend: {
@@ -33,18 +33,17 @@ export const options = {
 
 const labels = ["Current", "Personal Average", "Overall Users Average"];
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Percentage",
-      data: [20, 60, 90,100],
-      backgroundColor: "#923423",
-    },
-  ],
-};
-
 const EfficiencyGraph = () => {
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Percentage",
+        data: [20, 60, 90, 100],
+        backgroundColor: "#923423",
+      },
+    ],
+  };
   return (
     <div className="w-[40%] z-999">
       <Bar

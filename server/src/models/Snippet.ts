@@ -49,7 +49,15 @@ class Snippet {
   static async findByCategory(category: string): Promise<Snippet[]> {
     return prisma.snippet.findMany({
       where: {
-        category,
+        category: category,
+      },
+    });
+  }
+
+  static async deleteSnippet(id: number): Promise<Snippet> {
+    return prisma.snippet.delete({
+      where: {
+        id,
       },
     });
   }

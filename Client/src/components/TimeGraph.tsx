@@ -45,7 +45,6 @@ const TimeGraph = ({ elapsedTime }: TimeGraphProps) => {
         label: "Minutes",
         data: [timeInMinutes, 5, 7, 10],
         backgroundColor: "blue",
-        color: "white",
       },
     ],
   };

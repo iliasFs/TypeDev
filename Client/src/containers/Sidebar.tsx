@@ -3,6 +3,8 @@ import Button from "../components/Button";
 import { Editor } from "@monaco-editor/react";
 import defaultVal from "../lib/constants";
 import ResultsModal from "../components/ResultsModal";
+import { categories } from "../lib/constants";
+import axios from "axios";
 
 const Sidebar = () => {
   const [value, setValue] = useState("");
@@ -19,12 +21,24 @@ const Sidebar = () => {
   const [errorCount, setErrorCount] = useState<number>(0);
   const [typedText, setTypedText] = useState("");
   const [wordCount, setWordCount] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("Javascript");
+  const [data, setData] = useState([]);
 
   useEffect(() => {
+    axios
+      .get(
+        `http://localhost:8080/admin-snippet/${selectedCategory.toLowerCase()}`
+      )
+      .then((response) => {
+        setData(
+          response.data[Math.floor(Math.random() * response.data.length)].body
+        );
+      });
+
     if (startTime && endTime) {
       setElapsedTime(endTime - startTime);
     }
-  }, [startTime, endTime]);
+  }, [startTime, endTime, selectedCategory]);
 
   function handleKeyDown(event: { key: string; preventDefault: () => void }) {
     if (event.key === "Enter") {
@@ -36,9 +50,8 @@ const Sidebar = () => {
     }
   }
 
-  const handleStart = (e: { preventDefault: () => void }): void => {
+  const handleStart = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
     setTextAreaIsDisabled(false);
 
     textAreaRef.current.focus();
@@ -69,7 +82,7 @@ const Sidebar = () => {
 
     const typedValue = value.trim();
     const typedWords = typedValue.split(/\s+/);
-    const sampleWords = defaultVal.split(/\s+/);
+    const sampleWords = data.split(/\s+/);
     let errors = 0;
 
     for (let i = 0; i < typedWords.length; i++) {
@@ -77,9 +90,15 @@ const Sidebar = () => {
         errors++;
       }
     }
+    const errorRate = wordCount > 0 ? (errorCount / wordCount) * 100 : 0;
     setTypedText(typedValue);
     setErrorCount(errors + bckSpace);
     setWordCount(typedWords.length);
+    if (wordCount === 0) {
+      setEfficiency(0);
+    } else {
+      setEfficiency(Number((100 - errorRate).toFixed(2)));
+    }
   };
 
   const handleReset = () => {
@@ -105,17 +124,17 @@ const Sidebar = () => {
         />
       ) : null}
       <div className="w-[150px] p-4 border-r border-[#9c1d3476] flex flex-col gap-10">
-        <Button name={"Javascript"} />
-        <Button name={"Typescript"} />
-        <Button name={"Python"} />
-        <Button name={"Solidity"} />
-        <Button name={"Swift"} />
-        <Button name={"C#"} />
-        <Button name={"C++"} />
+        {categories.map((category, index) => (
+          <div key={index}>
+            <Button
+              name={category.name}
+              handleCategoryClick={() => setSelectedCategory(category.name)}
+            />
+          </div>
+        ))}
       </div>
       <div className="flex flex-col gap-20 text-center mx-10">
         <button
-          type="button"
           className="w-[100px] px-4 py-2 bg-green-600 rounded-xl"
           onClick={handleStart}
         >
@@ -135,6 +154,11 @@ const Sidebar = () => {
         >
           Reset
         </button>
+        <button
+          type="button"
+          className="w-[100px] px-4 py-2 bg-[#9C1D34] rounded-xl"
+          onClick={handleReset}
+        ></button>
       </div>
 
       <div className={`min-w-[80%] min-h-full relative ${isHidden}`}>
@@ -143,8 +167,13 @@ const Sidebar = () => {
           height="100%"
           width="100%"
           theme="vs-dark"
-          defaultLanguage="javascript"
-          defaultValue={defaultVal}
+          defaultLanguage={selectedCategory.toLowerCase()}
+          value={data}
+          options={{
+            wordWrap: "on",
+            minimap: { enabled: true },
+            renderValidationDecorations: "off",
+          }}
         />
         <div className="min-w-[100%] min-h-[100%] absolute -top-[0.5px] left-[62px]">
           <textarea

@@ -18,7 +18,7 @@ ChartJS.register(
   Legend
 );
 
-const options = {
+export const options = {
   responsive: true,
   plugins: {
     legend: {
@@ -33,17 +33,17 @@ const options = {
 
 const labels = ["Current", "Personal Average", "Overall Users Average"];
 
-interface efficiencyGraphProps {
+interface EfficiencyGraphProps {
   efficiency: number | null;
 }
 
-const EfficiencyGraph = ({ efficiency }: efficiencyGraphProps) => {
+const EfficiencyGraph = ({ efficiency }: EfficiencyGraphProps) => {
   const data = {
     labels,
     datasets: [
       {
         label: "Percentage",
-        data: [efficiency, 60, 90, 100],
+        data: [efficiency, 60, 90],
         backgroundColor: "#923423",
       },
     ],

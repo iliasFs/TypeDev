@@ -42,7 +42,7 @@ const ResultsModal = ({
           <h3 className="py-2 text-lg font-bold "> Wpm : {wpm} </h3>
           <h3 className="py-2 text-lg font-bold">
             {" "}
-            Efficiency : {(100 - errorRate).toFixed(2) + "%"}
+            Efficiency : {efficiency + "%"}
           </h3>
         </div>
         <div className="w-full gap-12 h-[80%] flex justify-center items-center">

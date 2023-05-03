@@ -22,7 +22,7 @@ const Sidebar = () => {
   const [selectedCategory, setSelectedCategory] = useState("Javascript");
   const [data, setData] = useState<string>("");
   const [showCategories, setShowCategories] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     axios
@@ -121,14 +121,15 @@ const Sidebar = () => {
       });
   };
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     setIsHidden("hidden");
-    const snippet = await axios.post(`http://localhost:8080/admin-snippet}`);
+    setShowCategories(false);
+    setShowCreateModal(true);
   };
 
   return (
     <div className=" max-w-[800px] lg:max-w-[1350px] flex w-full h-full relative">
-      {showCreateModal ? <CreateSnippet /> : null}
+      {showCreateModal ? <CreateSnippet setShowCreateModal={setShowCreateModal}/> : null}
       {showResults ? (
         <ResultsModal
           elapsedTime={elapsedTime}

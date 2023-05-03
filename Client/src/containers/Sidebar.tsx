@@ -1,28 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 import Button from "../components/Button";
 import { Editor } from "@monaco-editor/react";
-import defaultVal from "../lib/constants";
 import ResultsModal from "../components/ResultsModal";
+import CreateSnippet from "../components/CreateSnippet";
 import { categories } from "../lib/constants";
 import axios from "axios";
 
 const Sidebar = () => {
   const [value, setValue] = useState("");
-  const [bckSpace, setBckSpace] = useState<number | null>(0);
+  const [bckSpace, setBckSpace] = useState<number>(0);
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const [textAreaisDisabled, setTextAreaIsDisabled] = useState(true);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<number | null>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [wpm, setWpm] = useState<number>(0);
   const [efficiency, setEfficiency] = useState<number>(0);
   const [isHidden, setIsHidden] = useState<string>("");
   const [errorCount, setErrorCount] = useState<number>(0);
-  const [typedText, setTypedText] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("Javascript");
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<string>("");
+  const [showCategories, setShowCategories] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(true);
 
   useEffect(() => {
     axios
@@ -34,29 +34,33 @@ const Sidebar = () => {
           response.data[Math.floor(Math.random() * response.data.length)].body
         );
       });
+  }, [selectedCategory]);
 
+  useEffect(() => {
     if (startTime && endTime) {
       setElapsedTime(endTime - startTime);
     }
-  }, [startTime, endTime, selectedCategory]);
+  }, [startTime, endTime]);
 
   function handleKeyDown(event: { key: string; preventDefault: () => void }) {
     if (event.key === "Enter") {
-      setValue(value + "\n    ");
+      setValue(value + "\n  ");
       event.preventDefault();
     }
     if (event.key === "Backspace") {
-      setBckSpace((prev: number | null) => prev + 1);
+      setBckSpace((prev) => prev + 1);
     }
   }
 
   const handleStart = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    setTextAreaIsDisabled(false);
-
-    textAreaRef.current.focus();
+    if (textAreaRef.current) {
+      textAreaRef.current?.removeAttribute("disabled");
+      textAreaRef.current?.focus();
+    }
 
     setStartTime(Date.now());
+    setShowCategories(false);
   };
 
   const handleEvaluate = () => {
@@ -65,8 +69,6 @@ const Sidebar = () => {
     }
 
     setShowResults(true);
-
-    setValue("");
 
     setIsHidden("hidden");
 
@@ -89,15 +91,9 @@ const Sidebar = () => {
       if (typedWords[i] !== sampleWords[i]) {
         errors++;
       }
-    }
-    const errorRate = wordCount > 0 ? (errorCount / wordCount) * 100 : 0;
-    setTypedText(typedValue);
-    setErrorCount(errors + bckSpace);
-    setWordCount(typedWords.length);
-    if (wordCount === 0) {
-      setEfficiency(0);
-    } else {
-      setEfficiency(Number((100 - errorRate).toFixed(2)));
+      const errorCount = errors + Math.floor(bckSpace / 3);
+      const errorRate = wordCount > 0 ? (errorCount / wordCount) * 100 : 0;
+      setEfficiency(100 - errorRate);
     }
   };
 
@@ -107,10 +103,32 @@ const Sidebar = () => {
     setBckSpace(0);
     setElapsedTime(0);
     setEfficiency(0);
+    setSelectedCategory("javascript");
+    setStartTime(0);
+    setEndTime(0);
+    setShowCategories(true);
+  };
+
+  const handleRegen = async () => {
+    return await axios
+      .get(
+        `http://localhost:8080/admin-snippet/${selectedCategory.toLowerCase()}`
+      )
+      .then((response) => {
+        setData(
+          response.data[Math.floor(Math.random() * response.data.length)].body
+        );
+      });
+  };
+
+  const handleCreate = async () => {
+    setIsHidden("hidden");
+    const snippet = await axios.post(`http://localhost:8080/admin-snippet}`);
   };
 
   return (
     <div className=" max-w-[800px] lg:max-w-[1350px] flex w-full h-full relative">
+      {showCreateModal ? <CreateSnippet /> : null}
       {showResults ? (
         <ResultsModal
           elapsedTime={elapsedTime}
@@ -123,16 +141,19 @@ const Sidebar = () => {
           wordCount={wordCount}
         />
       ) : null}
-      <div className="w-[150px] p-4 border-r border-[#9c1d3476] flex flex-col gap-10">
-        {categories.map((category, index) => (
-          <div key={index}>
-            <Button
-              name={category.name}
-              handleCategoryClick={() => setSelectedCategory(category.name)}
-            />
-          </div>
-        ))}
-      </div>
+      {showCategories && (
+        <div className="w-[150px] px-4 border-r border-[#9c1d3476] flex flex-col gap-16">
+          {categories.map((category, index) => (
+            <div key={index}>
+              <Button
+                name={category.name}
+                handleCategoryClick={() => setSelectedCategory(category.name)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-col gap-20 text-center mx-10">
         <button
           className="w-[100px] px-4 py-2 bg-green-600 rounded-xl"
@@ -142,23 +163,41 @@ const Sidebar = () => {
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#416E93] rounded-xl"
+          className="w-[100px] px-4 py-2 bg-[#3C6181] rounded-xl"
           onClick={handleEvaluate}
         >
           Evaluate
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#9C1D34] rounded-xl"
+          className="w-[100px] px-4 py-2 bg-[#691323] rounded-xl"
           onClick={handleReset}
         >
           Reset
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#9C1D34] rounded-xl"
-          onClick={handleReset}
-        ></button>
+          className="w-[100px] px-4 py-2 bg-[#2A2A2A] rounded-xl"
+          onClick={handleRegen}
+        >
+          Regen
+        </button>
+        <button
+          type="button"
+          className="w-[100px] px-4 py-2 bg-[#2A2A2A] rounded-xl"
+          onClick={handleCreate}
+        >
+          Create
+        </button>
+        <button
+          type="button"
+          className="w-[100px] px-4 py-2 bg-[#2A2A2A] rounded-xl"
+          onClick={(): void => {
+            console.log("empty");
+          }}
+        >
+          History
+        </button>
       </div>
 
       <div className={`min-w-[80%] min-h-full relative ${isHidden}`}>
@@ -171,7 +210,7 @@ const Sidebar = () => {
           value={data}
           options={{
             wordWrap: "on",
-            minimap: { enabled: true },
+            minimap: { enabled: false },
             renderValidationDecorations: "off",
           }}
         />
@@ -183,7 +222,7 @@ const Sidebar = () => {
             onChange={(event) => setValue(event.target.value)}
             onKeyDown={handleKeyDown}
             ref={textAreaRef}
-            disabled={textAreaisDisabled}
+            disabled
           />
         </div>
       </div>

@@ -31,9 +31,8 @@ const ResultsModal = ({
     setIsHidden("");
   };
 
-  const errorRate = wordCount > 0 ? (errorCount / wordCount) * 100 : 0;
   return (
-    <div className="w-full h-full absolute z-100">
+    <div className="w-[100vw] h-[100vh] absolute z-100">
       <div className="w-full h-full border bg-[#000000de] flex flex-col items-center">
         <div>
           <h3 className="py-2 text-lg font-bold">

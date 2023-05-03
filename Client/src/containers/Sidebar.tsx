@@ -67,7 +67,7 @@ const Sidebar = () => {
     if (startTime) {
       setEndTime(Date.now());
     }
-
+    setShowCategories(false)
     setShowResults(true);
 
     setIsHidden("hidden");
@@ -109,7 +109,8 @@ const Sidebar = () => {
     setShowCategories(true);
   };
 
-  const handleRegen = async () => {
+  const handleRegen = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
     return await axios
       .get(
         `http://localhost:8080/admin-snippet/${selectedCategory.toLowerCase()}`
@@ -129,7 +130,13 @@ const Sidebar = () => {
 
   return (
     <div className=" max-w-[800px] lg:max-w-[1350px] flex w-full h-full relative">
-      {showCreateModal ? <CreateSnippet setShowCreateModal={setShowCreateModal}/> : null}
+      {showCreateModal ? (
+        <CreateSnippet
+          setShowCreateModal={setShowCreateModal}
+          setIsHidden={setIsHidden}
+          setShowCategories={setShowCategories}
+        />
+      ) : null}
       {showResults ? (
         <ResultsModal
           elapsedTime={elapsedTime}
@@ -171,28 +178,28 @@ const Sidebar = () => {
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#691323] rounded-xl"
+          className="w-[100px] px-4 py-2 bg-[#828587] rounded-xl"
           onClick={handleReset}
         >
           Reset
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#2A2A2A] rounded-xl"
+          className="w-[100px] px-4 py-2 bg-[#a46b00] rounded-xl"
           onClick={handleRegen}
         >
           Regen
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#2A2A2A] rounded-xl"
+          className="w-[100px] px-4 py-2 bg-[#3d1d4a] rounded-xl"
           onClick={handleCreate}
         >
           Create
         </button>
         <button
           type="button"
-          className="w-[100px] px-4 py-2 bg-[#2A2A2A] rounded-xl"
+          className="w-[100px] px-4 py-2 bg-[#800000] rounded-xl"
           onClick={(): void => {
             console.log("empty");
           }}
@@ -208,7 +215,7 @@ const Sidebar = () => {
           width="100%"
           theme="vs-dark"
           defaultLanguage={selectedCategory.toLowerCase()}
-          value={data}
+          defaultValue={data}
           options={{
             wordWrap: "on",
             minimap: { enabled: false },

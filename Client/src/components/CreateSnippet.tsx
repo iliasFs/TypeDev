@@ -3,9 +3,15 @@ import axios from "axios";
 
 interface CreateSnippetProps {
   setShowCreateModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsHidden: React.Dispatch<React.SetStateAction<string>>;
+  setShowCategories: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const CreateSnippet = ({ setShowCreateModal }: CreateSnippetProps) => {
+const CreateSnippet = ({
+  setShowCreateModal,
+  setIsHidden,
+  setShowCategories,
+}: CreateSnippetProps) => {
   const [body, setBody] = useState("");
   const [category, setCategory] = useState("javascript");
   const [difficulty, setDifficulty] = useState("easy");
@@ -19,12 +25,15 @@ const CreateSnippet = ({ setShowCreateModal }: CreateSnippetProps) => {
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
     setShowCreateModal(false);
+    setIsHidden("");
+    setShowCategories(true);
+
     try {
       const response = await axios.post(
         "http://localhost:8080/admin-snippet/",
         data
       );
-      console.log(response.data);
+      alert("snippet has been added");
       // You can perform any other actions with the response here
     } catch (error) {
       console.error(error);

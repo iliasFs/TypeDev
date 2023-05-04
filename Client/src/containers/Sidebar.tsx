@@ -67,7 +67,7 @@ const Sidebar = () => {
     if (startTime) {
       setEndTime(Date.now());
     }
-    setShowCategories(false)
+    setShowCategories(false);
     setShowResults(true);
 
     setIsHidden("hidden");
@@ -109,9 +109,8 @@ const Sidebar = () => {
     setShowCategories(true);
   };
 
-  const handleRegen = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    return await axios
+  const handleRegen = () => {
+    return axios
       .get(
         `http://localhost:8080/admin-snippet/${selectedCategory.toLowerCase()}`
       )
@@ -215,7 +214,7 @@ const Sidebar = () => {
           width="100%"
           theme="vs-dark"
           defaultLanguage={selectedCategory.toLowerCase()}
-          defaultValue={data}
+          value={data}
           options={{
             wordWrap: "on",
             minimap: { enabled: false },
@@ -224,7 +223,7 @@ const Sidebar = () => {
         />
         <div className="min-w-[100%] min-h-[100%] absolute -top-[0.5px] left-[62px]">
           <textarea
-            className="bg-transparent text-[14px] font-fira w-[80%] min-h-[100%] leading-[18px]"
+            className="bg-transparent text-[14px] font-fira w-[92%] min-h-[100%] leading-[18px]"
             rows={35}
             value={value}
             onChange={(event) => setValue(event.target.value)}
